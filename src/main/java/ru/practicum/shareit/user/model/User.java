@@ -1,4 +1,5 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.user.model;
+
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -6,18 +7,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 @Data
 @Builder
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDto {
-    @NotBlank
+public class User {
+    Long id;
     String name;
-    @NotBlank
-    String description;
-    @NotNull
-    Boolean available;
+    String email;
 }
