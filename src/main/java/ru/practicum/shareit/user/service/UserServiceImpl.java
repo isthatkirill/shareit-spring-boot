@@ -69,7 +69,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private User checkUserExistent(Long id) {
+    @Override
+    public User checkUserExistent(Long id) {
         return userRepository.getById(id)
                 .orElseThrow(() -> new NotFoundException(User.class, "Id: " + id));
     }

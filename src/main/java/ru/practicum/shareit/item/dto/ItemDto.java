@@ -14,10 +14,11 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
-    @NotBlank
+    Long id;
+    @NotBlank(message = "Name cannot be empty or null")
     String name;
-    @NotBlank
+    @NotBlank(message = "Description cannot be empty or null")
     String description;
-    @NotNull
+    @NotNull(message = "Must equals true or false")
     Boolean available;
 }
