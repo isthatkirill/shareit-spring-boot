@@ -49,7 +49,6 @@ public class ItemRepositoryImpl implements ItemRepository {
                 .collect(Collectors.toList());
     }
 
-
     private Long tempGenerateId() {
         return ++id;
     }

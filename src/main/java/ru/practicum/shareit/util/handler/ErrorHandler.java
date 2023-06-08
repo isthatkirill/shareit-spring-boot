@@ -25,7 +25,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage notUniqueEmailHandle(final UniqueEmailException e){
+    public ErrorMessage notUniqueEmailHandle(final UniqueEmailException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Validation error", e.getMessage());
     }

@@ -65,6 +65,7 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.getAll();
         if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail())
                 && !u.getId().equals(user.getId()))) {
+            log.info("Email {} is already taken", user.getEmail());
             throw new UniqueEmailException("This email is already taken");
         }
     }

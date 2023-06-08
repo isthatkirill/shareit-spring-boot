@@ -22,6 +22,8 @@ public class Item {
     String description;
     @NotNull
     Boolean available;
+    @NotNull
     Long owner;
+    @NotNull
     ItemRequest request;
 }

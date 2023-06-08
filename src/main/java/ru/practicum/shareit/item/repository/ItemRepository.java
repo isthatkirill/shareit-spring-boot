@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ItemRepository {
 
-    Item create(Item Item);
+    Item create(Item item);
 
     Optional<Item> getById(Long id);
 
