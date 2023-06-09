@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
@@ -19,19 +19,20 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+        User user = userMapper.toUser(userDto);
         checkIfEmailValid(user);
         log.info("User created: {}", userDto.getEmail());
-        return UserMapper.toUserDto(userRepository.create(user));
+        return userMapper.toUserDto(userRepository.create(user));
     }
 
     @Override
     public UserDto update(UserDto userDto, Long id) {
         User oldUser = checkUserExistent(id);
-        User newUser = UserMapper.toUser(userDto);
+        User newUser = userMapper.toUser(userDto);
         newUser.setId(id);
         if (userDto.getName() != null) newUser.setName(userDto.getName());
         if (userDto.getEmail() != null) newUser.setEmail(userDto.getEmail());
@@ -39,13 +40,13 @@ public class UserServiceImpl implements UserService {
         if (userDto.getName() != null) oldUser.setName(userDto.getName());
         if (userDto.getEmail() != null) oldUser.setEmail(userDto.getEmail());
         log.info("User updated: {}", id);
-        return UserMapper.toUserDto(userRepository.update(oldUser));
+        return userMapper.toUserDto(userRepository.update(oldUser));
     }
 
     @Override
     public UserDto getById(Long id) {
         log.info("Get user by id = {}", id);
-        return UserMapper.toUserDto(checkUserExistent(id));
+        return userMapper.toUserDto(checkUserExistent(id));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
         log.info("Get all users");
         return userRepository.getAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
