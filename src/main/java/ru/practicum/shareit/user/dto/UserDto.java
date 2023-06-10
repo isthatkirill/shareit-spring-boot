@@ -1,12 +1,12 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.request.ItemRequest;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -14,16 +14,11 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Item {
+public class UserDto {
     Long id;
-    @NotBlank
+    @NotBlank(message = "Name cannot be empty or null")
     String name;
-    @NotBlank
-    String description;
-    @NotNull
-    Boolean available;
-    @NotNull
-    Long owner;
-    @NotNull
-    ItemRequest request;
+    @Email(message = "Email must satisfy pattern")
+    @NotNull(message = "Email cannot be null")
+    String email;
 }
