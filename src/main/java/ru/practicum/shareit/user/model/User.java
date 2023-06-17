@@ -1,25 +1,27 @@
 package ru.practicum.shareit.user.model;
 
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 
 @Data
+@Entity
 @Builder
+@Table(name = "users")
+@NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @NotBlank(message = "Name cannot be empty or null")
+
+    @Column(name = "name", nullable = false)
     String name;
-    @Email(message = "Email must satisfy pattern")
-    @NotNull(message = "Email cannot be null")
+
+    @Column(name = "email", nullable = false, unique = true)
     String email;
 }
