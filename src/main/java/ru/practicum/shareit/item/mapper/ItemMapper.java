@@ -5,6 +5,8 @@ import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
     @Mapping(target = "owner", source = "ownerId")
@@ -12,4 +14,6 @@ public interface ItemMapper {
     Item toItem(ItemDto itemDto, Long ownerId, Long itemId);
 
     ItemDto toItemDto(Item item);
+
+    List<ItemDto> toItemDto(List<Item> items);
 }

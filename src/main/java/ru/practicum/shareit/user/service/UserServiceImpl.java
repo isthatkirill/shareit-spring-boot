@@ -11,7 +11,6 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 import ru.practicum.shareit.util.exception.UniqueEmailException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,10 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAll() {
         log.info("Get all users");
-        return userRepository.getAll()
-                .stream()
-                .map(userMapper::toUserDto)
-                .collect(Collectors.toList());
+        return userMapper.toUserDto(userRepository.getAll());
     }
 
     public void delete(Long id) {

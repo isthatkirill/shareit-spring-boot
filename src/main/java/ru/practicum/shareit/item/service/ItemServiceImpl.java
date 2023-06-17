@@ -14,7 +14,6 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,18 +51,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getByOwner(Long ownerId) {
-        return itemRepository.getByOwner(ownerId).stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemMapper.toItemDto(itemRepository.getByOwner(ownerId));
     }
 
     @Override
     public List<ItemDto> search(String text) {
         if (text.equals("")) return new ArrayList<>();
         log.info("search for an item on request '{}'", text);
-        return itemRepository.search(text).stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemMapper.toItemDto(itemRepository.search(text));
     }
 
     private Item getItemIfExists(Long id) {
