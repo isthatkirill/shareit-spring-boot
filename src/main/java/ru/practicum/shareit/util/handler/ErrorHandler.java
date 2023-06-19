@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
+import ru.practicum.shareit.util.exception.ItemNotAvailableException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 
@@ -45,11 +46,18 @@ public class ErrorHandler {
         return new ErrorMessage("Incorrect owner", e.getMessage());
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorMessage sqlErrorsHandle(final DataIntegrityViolationException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("SQL error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage notAvailableItemHandle(final ItemNotAvailableException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Item is not available", e.getMessage());
     }
 
 }

@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
+import ru.practicum.shareit.util.exception.ItemNotAvailableException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
         userService.checkUserExistentAndGet(ownerId);
-        getItemIfExists(itemId);
+        checkItemExistentAndGet(itemId);
         Item item = getItemIfHaveCorrectOwner(itemMapper.toItem(itemDto, userService.checkUserExistentAndGet(ownerId), itemId));
         if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
         if (itemDto.getName() != null) item.setName(itemDto.getName());
@@ -50,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public ItemDto getById(Long id) {
-        return itemMapper.toItemDto(getItemIfExists(id));
+        return itemMapper.toItemDto(checkItemExistentAndGet(id));
     }
 
     @Override
@@ -68,10 +69,17 @@ public class ItemServiceImpl implements ItemService {
                 .search(text));
     }
 
-    private Item getItemIfExists(Long id) {
+    @Override
+    public Item checkItemExistentAndGet(Long id) {
         return itemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(User.class, "Id:" + id));
+                .orElseThrow(() -> new NotFoundException(Item.class, "Id:" + id));
 
+    }
+
+    @Override
+    public Item checkItemAvailabilityAndGet(Long id) {
+        return itemRepository.findItemByIdEqualsAndAvailableIsTrue(id)
+                .orElseThrow(() -> new ItemNotAvailableException("Item is not available or not found. Id:" + id));
     }
 
     private Item getItemIfHaveCorrectOwner(Item item) {
