@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto create(UserDto userDto) {
         User user = userMapper.toUser(userDto);
-        checkIfEmailValid(user);
         log.info("User created: {}", userDto.getEmail());
         return userMapper.toUserDto(userRepository.save(user));
     }
@@ -33,12 +32,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto update(UserDto userDto, Long id) {
-        User oldUser = checkUserExistent(id);
+        User oldUser = checkUserExistentAndGet(id);
         User newUser = userMapper.toUser(userDto);
         newUser.setId(id);
-        if (userDto.getName() != null) newUser.setName(userDto.getName());
-        if (userDto.getEmail() != null) newUser.setEmail(userDto.getEmail());
-        checkIfEmailValid(newUser);
         if (userDto.getName() != null) oldUser.setName(userDto.getName());
         if (userDto.getEmail() != null) oldUser.setEmail(userDto.getEmail());
         log.info("User updated: {}", id);
@@ -49,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserDto getById(Long id) {
         log.info("Get user by id = {}", id);
-        return userMapper.toUserDto(checkUserExistent(id));
+        return userMapper.toUserDto(checkUserExistentAndGet(id));
     }
 
     @Override
@@ -65,17 +61,9 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void checkIfEmailValid(User user) {
-        List<User> users = userRepository.findByEmailContainingIgnoreCase(user.getEmail());
-        if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail())
-                && !u.getId().equals(user.getId()))) {
-            log.info("Email {} is already taken", user.getEmail());
-            throw new UniqueEmailException("This email is already taken");
-        }
-    }
 
     @Override
-    public User checkUserExistent(Long id) {
+    public User checkUserExistentAndGet(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(User.class, "Id: " + id));
     }

@@ -4,14 +4,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
-    @Mapping(target = "owner", source = "ownerId")
+    @Mapping(target = "owner", source = "owner")
     @Mapping(target = "id", source = "itemId")
-    Item toItem(ItemDto itemDto, Long ownerId, Long itemId);
+    @Mapping(target = "name", source = "itemDto.name")
+    Item toItem(ItemDto itemDto, User owner, Long itemId);
 
     ItemDto toItemDto(Item item);
 
