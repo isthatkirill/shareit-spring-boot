@@ -23,7 +23,7 @@ create table if not exists items
     description VARCHAR(255) NOT NULL,
     is_available BOOLEAN NOT NULL,
     owner_id BIGINT NOT NULL,
-    request_id BIGINT NOT NULL,
+    request_id BIGINT,
     FOREIGN KEY (owner_id) REFERENCES users (id),
     FOREIGN KEY (request_id) REFERENCES requests (id)
 );

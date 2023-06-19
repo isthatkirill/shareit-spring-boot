@@ -1,6 +1,7 @@
 package ru.practicum.shareit.util.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
 import ru.practicum.shareit.util.exception.NotFoundException;
-import ru.practicum.shareit.util.exception.UniqueEmailException;
+
 
 @Slf4j
 @RestControllerAdvice("ru.practicum.shareit")
@@ -21,13 +22,6 @@ public class ErrorHandler {
         String errorMessage = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
         log.warn("{}: {}", e.getClass().getSimpleName(), errorMessage);
         return new ErrorMessage("Validation error", errorMessage);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage notUniqueEmailHandle(final UniqueEmailException e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
-        return new ErrorMessage("Validation error", e.getMessage());
     }
 
     @ExceptionHandler
@@ -49,6 +43,13 @@ public class ErrorHandler {
     public ErrorMessage missingHeaderHandle(final IncorrectOwnerException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Incorrect owner", e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage sqlErrorsHandle(final DataIntegrityViolationException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("SQL error", e.getMessage());
     }
 
 }

@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
-import ru.practicum.shareit.util.exception.UniqueEmailException;
 
 import java.util.List;
 
@@ -33,12 +32,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto update(UserDto userDto, Long id) {
         User oldUser = checkUserExistentAndGet(id);
-        User newUser = userMapper.toUser(userDto);
-        newUser.setId(id);
         if (userDto.getName() != null) oldUser.setName(userDto.getName());
         if (userDto.getEmail() != null) oldUser.setEmail(userDto.getEmail());
+
         log.info("User updated: {}", id);
         return userMapper.toUserDto(userRepository.save(oldUser));
+
     }
 
     @Override

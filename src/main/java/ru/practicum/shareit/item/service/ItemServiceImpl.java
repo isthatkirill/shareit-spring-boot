@@ -65,7 +65,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.equals("")) return new ArrayList<>();
         log.info("search for an item on request '{}'", text);
         return itemMapper.toItemDto(itemRepository
-                .findItemsByDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text));
+                .search(text));
     }
 
     private Item getItemIfExists(Long id) {
