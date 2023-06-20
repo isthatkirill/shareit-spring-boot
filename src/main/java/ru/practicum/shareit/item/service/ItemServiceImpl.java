@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
 import ru.practicum.shareit.util.exception.ItemNotAvailableException;
@@ -57,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getByOwner(Long ownerId) {
-        return itemMapper.toItemDto(itemRepository.findAllByOwner_Id(ownerId));
+        return itemMapper.toItemDto(itemRepository.findAllByOwnerId(ownerId));
     }
 
     @Override

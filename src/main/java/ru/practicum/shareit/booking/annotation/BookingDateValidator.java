@@ -1,50 +1,50 @@
 package ru.practicum.shareit.booking.annotation;
 
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
 
-public class BookingDateValidator implements ConstraintValidator<ValidBookingDate, BookingDto> {
+public class BookingDateValidator implements ConstraintValidator<ValidBookingDate, BookingDtoRequest> {
 
     @Override
     public void initialize(ValidBookingDate constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(BookingDto bookingDto, ConstraintValidatorContext context) {
-        if (bookingDto.getStart() == null) {
+    public boolean isValid(BookingDtoRequest bookingDtoRequest, ConstraintValidatorContext context) {
+        if (bookingDtoRequest.getStart() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Start of booking cannot be null")
                     .addPropertyNode("start")
                     .addConstraintViolation();
             return false;
-        } else if (bookingDto.getEnd() == null) {
+        } else if (bookingDtoRequest.getEnd() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("End of booking cannot be null")
                     .addPropertyNode("end")
                     .addConstraintViolation();
             return false;
-        } else if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
+        } else if (bookingDtoRequest.getStart().isBefore(LocalDateTime.now())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Start of booking cannot be in past")
                     .addPropertyNode("start")
                     .addConstraintViolation();
             return false;
-        } else if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
+        } else if (bookingDtoRequest.getEnd().isBefore(LocalDateTime.now())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("End of booking cannot be in past")
                     .addPropertyNode("end")
                     .addConstraintViolation();
             return false;
-        } else if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
+        } else if (bookingDtoRequest.getStart().isAfter(bookingDtoRequest.getEnd())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("End of booking cannot be earlier than start")
                     .addPropertyNode("end")
                     .addConstraintViolation();
             return false;
-        } else if (bookingDto.getStart().isEqual(bookingDto.getEnd())) {
+        } else if (bookingDtoRequest.getStart().isEqual(bookingDtoRequest.getEnd())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("End of booking cannot equals start")
                     .addPropertyNode("end")
