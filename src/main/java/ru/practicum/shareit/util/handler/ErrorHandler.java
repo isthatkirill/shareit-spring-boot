@@ -5,12 +5,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.util.exception.IncorrectOwnerException;
-import ru.practicum.shareit.util.exception.ItemNotAvailableException;
-import ru.practicum.shareit.util.exception.NotFoundException;
+import ru.practicum.shareit.util.exception.*;
 
 
 @Slf4j
@@ -40,7 +39,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage missingHeaderHandle(final IncorrectOwnerException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Incorrect owner", e.getMessage());
@@ -58,6 +57,35 @@ public class ErrorHandler {
     public ErrorMessage notAvailableItemHandle(final ItemNotAvailableException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Item is not available", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage unsupportedStatusHandle(final UnsupportedStatusException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage(e.getMessage(), "Unsupported state. Please resend the request with " +
+                "following possible states: PAST, FUTURE, ALL, WAITING, REJECTED.");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage missingRequestParameterHandle(final MissingServletRequestParameterException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Missing request parameter", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage bookingStatusErrorHandle(final ChangingBookingStatusException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Error while changing status", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage bookingOwnItemHandle(final CantBookYourOwnItemException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Error while booking", e.getMessage());
     }
 
 }

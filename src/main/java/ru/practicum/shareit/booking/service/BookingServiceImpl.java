@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.controller.StateParam;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -15,8 +14,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.util.exception.IncorrectOwnerException;
-import ru.practicum.shareit.util.exception.NotFoundException;
+import ru.practicum.shareit.util.exception.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +36,9 @@ public class BookingServiceImpl implements BookingService {
         Long itemId = bookingDtoRequest.getItemId();
         itemService.checkItemExistentAndGet(itemId);
         Item item = itemService.checkItemAvailabilityAndGet(itemId);
+        if (item.getOwner().getId() == userId) {
+            throw new CantBookYourOwnItemException("Cannot book your own item");
+        }
         Booking booking = bookingMapper.toBooking(bookingDtoRequest, user, item);
         booking.setStatus(Status.WAITING);
         log.info("Booking created: itemId={}, userId={}", itemId, userId);
@@ -49,6 +50,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingDtoResponse approve(Long userId, Long bookingId, boolean isApproved) {
         Booking booking = checkBookingExistentAndGet(bookingId);
         isOwner(booking, userId);
+        if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
+            throw new ChangingBookingStatusException("Cannot change approved or rejected status");
+        }
         booking.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);
         log.info("User id={} set booking id={} status equal to {}", userId, booking, booking.getStatus().name());
         return bookingMapper.toBookingDtoResponse(bookingRepository.save(booking));
@@ -64,23 +68,79 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getByBookerId(Long userId, StateParam state) {
-        userService.checkUserExistentAndGet(userId);
+    public List<BookingDtoResponse> getByBookerId(Long bookerId, String state) {
+        userService.checkUserExistentAndGet(bookerId);
         List<BookingDtoResponse> bookings = new ArrayList<>();
         switch (state) {
-            case ALL:
+            case "ALL":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findAllByBookerIdOrderByStartDesc(userId));
+                        .findAllByBookerIdOrderByStartDesc(bookerId));
                 break;
-            case FUTURE:
+            case "FUTURE":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findFutureBookings(userId));
+                        .findFutureBookingsByBooker(bookerId));
+                break;
+            case "PAST":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findPastBookingsByBooker(bookerId));
+                break;
+            case "CURRENT":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findCurrentBookingsByBooker(bookerId));
+                break;
+            case "WAITING":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findWaitingBookingsByBooker(bookerId));
+                break;
+            case "REJECTED":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findRejectedBookingsByBooker(bookerId));
                 break;
             default:
-                return bookings;
+                throw new UnsupportedStatusException("Unknown state: " + state);
         }
+        log.info("[booker] User id={} requested information about his bookings with state={}", bookerId, state);
         return bookings;
     }
+
+    @Override
+    public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state) {
+        userService.checkUserExistentAndGet(ownerId);
+        List<BookingDtoResponse> bookings = new ArrayList<>();
+        switch (state) {
+            case "ALL":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findAllBookingsByOwner(ownerId));
+                break;
+            case "FUTURE":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findFutureBookingsByOwner(ownerId));
+                break;
+            case "PAST":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findPastBookingsByOwner(ownerId));
+                break;
+            case "CURRENT":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findCurrentBookingsByOwner(ownerId));
+                break;
+            case "WAITING":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findWaitingBookingsByOwner(ownerId));
+                break;
+            case "REJECTED":
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
+                        findRejectedBookingsByOwner(ownerId));
+                break;
+            default:
+                throw new UnsupportedStatusException("Unknown state: " + state);
+        }
+
+        log.info("[owner] User id={} requested information about his bookings with state={}", ownerId, state);
+        return bookings;
+    }
+
+
 
     @Override
     public Booking checkBookingExistentAndGet(Long id) {
