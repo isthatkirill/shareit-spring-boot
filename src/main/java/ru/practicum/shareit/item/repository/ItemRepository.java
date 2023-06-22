@@ -18,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "is_available = true", nativeQuery = true)
     List<Item> search(@Param("searchTerm") String searchTerm);
 
-    List<Item> findAllByOwnerId(Long id);
+    List<Item> findAllByOwnerIdOrderById(Long id);
 
     Optional<Item> findItemByIdEqualsAndAvailableIsTrue(Long id);
 

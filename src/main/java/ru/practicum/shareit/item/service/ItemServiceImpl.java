@@ -2,9 +2,13 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.BookingShort;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoExtended;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -15,6 +19,7 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +29,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional
@@ -49,14 +55,31 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ItemDto getById(Long id) {
-        return itemMapper.toItemDto(checkItemExistentAndGet(id));
+    public ItemDtoExtended getById(Long itemId, Long ownerId) {
+        Item item = checkItemExistentAndGet(itemId);
+        BookingShort nextBooking = null;
+        BookingShort lastBooking = null;
+        if (item.getOwner().getId() == ownerId) {
+            nextBooking = bookingRepository
+                    .findNextBooking(itemId, PageRequest.of(0, 1))
+                    .stream().findFirst().orElse(null);
+            lastBooking = bookingRepository
+                    .findLastBooking(itemId, PageRequest.of(0, 1))
+                    .stream().findFirst().orElse(null);
+        }
+        log.info("Get item id={}", itemId);
+        return itemMapper.toItemDtoExtended(item, nextBooking, lastBooking);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDto> getByOwner(Long ownerId) {
-        return itemMapper.toItemDto(itemRepository.findAllByOwnerId(ownerId));
+    public List<ItemDtoExtended> getByOwner(Long ownerId) {
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(ownerId);
+        List<ItemDtoExtended> itemDto = items.stream()
+                .map(i -> getById(i.getId(), ownerId))
+                .collect(Collectors.toList());
+        log.info("Owner id={} requested list of his items", ownerId);
+        return itemDto;
     }
 
     @Override

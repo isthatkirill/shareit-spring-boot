@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingShort;
 
 import java.util.List;
 
@@ -82,13 +83,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.start DESC")
     List<Booking> findAllBookingsByOwner(Long id);
 
-    //TODO
-
-    @Query("SELECT b FROM Booking b " +
+    @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
             "WHERE b.item.id = ?1 " +
-            "AND b.end < CURRENT_TIMESTAMP " +
-            "ORDER BY b.end DESC ")
-    Booking findLastBooking(Long itemId, Pageable pageable);
+            "AND b.end < CURRENT_TIMESTAMP AND b.status = 'APPROVED' " +
+            "ORDER BY b.start DESC ")
+    List<BookingShort> findLastBooking(Long itemId, Pageable pageable);
+
+    @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
+            "WHERE b.item.id = ?1 " +
+            "AND b.start > CURRENT_TIMESTAMP AND b.status = 'APPROVED' " +
+            "ORDER BY b.start ASC ")
+    List<BookingShort> findNextBooking(Long itemId, Pageable pageable);
 
 
 }

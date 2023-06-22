@@ -140,8 +140,6 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
-
-
     @Override
     public Booking checkBookingExistentAndGet(Long id) {
         return bookingRepository.findById(id)
