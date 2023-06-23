@@ -76,16 +76,24 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage bookingStatusErrorHandle(final ChangingBookingStatusException e) {
+    public ErrorMessage bookingStatusErrorHandle(final ChangeBookingStatusException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Error while changing status", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage bookingOwnItemHandle(final CantBookYourOwnItemException e) {
+    public ErrorMessage bookingOwnItemHandle(final BookYourOwnItemException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Error while booking", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage commentDeniedHandle(final CommentingDeniedException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Cannot comment", e.getMessage());
+    }
+
 
 }

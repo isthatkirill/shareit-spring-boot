@@ -7,16 +7,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.BookingShort;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.item.comment.dto.CommentDtoRequest;
+import ru.practicum.shareit.item.comment.dto.CommentDtoResponse;
+import ru.practicum.shareit.item.comment.mapper.CommentMapper;
+import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.comment.repository.CommentRepository;
+import ru.practicum.shareit.item.dto.ItemDtoRequest;
+import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.exception.CommentingDeniedException;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
 import ru.practicum.shareit.util.exception.ItemNotAvailableException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,33 +37,35 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
-    public ItemDto create(ItemDto itemDto, Long ownerId) {
+    public ItemDtoRequest create(ItemDtoRequest itemDtoRequest, Long ownerId) {
         userService.checkUserExistentAndGet(ownerId);
-        Item item = itemMapper.toItem(itemDto, userService.checkUserExistentAndGet(ownerId), null);
-        log.info("Item created: {} by owner id = {}", itemDto.getName(), ownerId);
-        return itemMapper.toItemDto(itemRepository.save(item));
+        Item item = itemMapper.toItem(itemDtoRequest, userService.checkUserExistentAndGet(ownerId), null);
+        log.info("Item created: {} by owner id = {}", itemDtoRequest.getName(), ownerId);
+        return itemMapper.toItemDtoRequest(itemRepository.save(item));
     }
 
     @Override
     @Transactional
-    public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
+    public ItemDtoRequest update(ItemDtoRequest itemDtoRequest, Long ownerId, Long itemId) {
         userService.checkUserExistentAndGet(ownerId);
         checkItemExistentAndGet(itemId);
-        Item item = getItemIfHaveCorrectOwner(itemMapper.toItem(itemDto, userService.checkUserExistentAndGet(ownerId), itemId));
-        if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
-        if (itemDto.getName() != null) item.setName(itemDto.getName());
-        if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
-        log.info("Item updated: name = {}, id = {}", itemDto.getName(), itemId);
-        return itemMapper.toItemDto(itemRepository.save(item));
+        Item item = getItemIfHaveCorrectOwner(itemMapper.toItem(itemDtoRequest, userService.checkUserExistentAndGet(ownerId), itemId));
+        if (itemDtoRequest.getAvailable() != null) item.setAvailable(itemDtoRequest.getAvailable());
+        if (itemDtoRequest.getName() != null) item.setName(itemDtoRequest.getName());
+        if (itemDtoRequest.getDescription() != null) item.setDescription(itemDtoRequest.getDescription());
+        log.info("Item updated: name = {}, id = {}", itemDtoRequest.getName(), itemId);
+        return itemMapper.toItemDtoRequest(itemRepository.save(item));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ItemDtoExtended getById(Long itemId, Long ownerId) {
+    public ItemDtoResponse getById(Long itemId, Long ownerId) {
         Item item = checkItemExistentAndGet(itemId);
         BookingShort nextBooking = null;
         BookingShort lastBooking = null;
@@ -67,15 +77,17 @@ public class ItemServiceImpl implements ItemService {
                     .findLastBooking(itemId, PageRequest.of(0, 1))
                     .stream().findFirst().orElse(null);
         }
+        List<CommentDtoResponse> comments = commentMapper
+                .toCommentDtoResponse(commentRepository.findByItemId(itemId));
         log.info("Get item id={}", itemId);
-        return itemMapper.toItemDtoExtended(item, nextBooking, lastBooking);
+        return itemMapper.toItemDtoResponse(item, nextBooking, lastBooking, comments);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDtoExtended> getByOwner(Long ownerId) {
+    public List<ItemDtoResponse> getByOwner(Long ownerId) {
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(ownerId);
-        List<ItemDtoExtended> itemDto = items.stream()
+        List<ItemDtoResponse> itemDto = items.stream()
                 .map(i -> getById(i.getId(), ownerId))
                 .collect(Collectors.toList());
         log.info("Owner id={} requested list of his items", ownerId);
@@ -84,11 +96,25 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDto> search(String text) {
+    public List<ItemDtoRequest> search(String text) {
         if (text.equals("")) return new ArrayList<>();
         log.info("search for an item on request '{}'", text);
-        return itemMapper.toItemDto(itemRepository
+        return itemMapper.toItemDtoRequest(itemRepository
                 .search(text));
+    }
+
+    @Override
+    @Transactional
+    public CommentDtoResponse createComment(Long itemId, Long userId, CommentDtoRequest commentDtoRequest) {
+        if (!bookingRepository.checkIfUserBookedItem(itemId, userId)) {
+            throw new CommentingDeniedException("You didn't book this item.");
+        }
+        User user = userService.checkUserExistentAndGet(userId);
+        Item item = checkItemExistentAndGet(itemId);
+        Comment comment = commentMapper.toComment(commentDtoRequest.getText(), item, user);
+        comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+        return commentMapper.toCommentDtoResponse(comment);
     }
 
     @Override

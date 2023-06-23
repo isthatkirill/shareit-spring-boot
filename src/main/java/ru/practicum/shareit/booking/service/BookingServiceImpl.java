@@ -37,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
         itemService.checkItemExistentAndGet(itemId);
         Item item = itemService.checkItemAvailabilityAndGet(itemId);
         if (item.getOwner().getId() == userId) {
-            throw new CantBookYourOwnItemException("Cannot book your own item");
+            throw new BookYourOwnItemException("Cannot book your own item");
         }
         Booking booking = bookingMapper.toBooking(bookingDtoRequest, user, item);
         booking.setStatus(Status.WAITING);
@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = checkBookingExistentAndGet(bookingId);
         isOwner(booking, userId);
         if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
-            throw new ChangingBookingStatusException("Cannot change approved or rejected status");
+            throw new ChangeBookingStatusException("Cannot change approved or rejected status");
         }
         booking.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);
         log.info("User id={} set booking id={} status equal to {}", userId, booking, booking.getStatus().name());

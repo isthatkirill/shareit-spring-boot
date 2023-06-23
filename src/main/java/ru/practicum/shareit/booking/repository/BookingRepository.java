@@ -85,15 +85,24 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
             "WHERE b.item.id = ?1 " +
-            "AND b.end < CURRENT_TIMESTAMP AND b.status = 'APPROVED' " +
+            "AND b.start < CURRENT_TIMESTAMP " +
+            "AND b.status = 'APPROVED' " +
             "ORDER BY b.start DESC ")
     List<BookingShort> findLastBooking(Long itemId, Pageable pageable);
 
     @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
             "WHERE b.item.id = ?1 " +
-            "AND b.start > CURRENT_TIMESTAMP AND b.status = 'APPROVED' " +
+            "AND b.start > CURRENT_TIMESTAMP " +
+            "AND b.status = 'APPROVED' " +
             "ORDER BY b.start ASC ")
     List<BookingShort> findNextBooking(Long itemId, Pageable pageable);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b " +
+            "WHERE b.item.id = ?1 AND " +
+            "b.booker.id = ?2 AND " +
+            "b.status = 'APPROVED' AND " +
+            "b.end < CURRENT_TIMESTAMP")
+    boolean checkIfUserBookedItem(Long itemId, Long userId);
 
 
 }
