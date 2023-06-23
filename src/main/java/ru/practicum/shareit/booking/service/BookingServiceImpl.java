@@ -81,20 +81,20 @@ public class BookingServiceImpl implements BookingService {
                         .findFutureBookingsByBooker(bookerId));
                 break;
             case "PAST":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findPastBookingsByBooker(bookerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findPastBookingsByBooker(bookerId));
                 break;
             case "CURRENT":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findCurrentBookingsByBooker(bookerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findCurrentBookingsByBooker(bookerId));
                 break;
             case "WAITING":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findWaitingBookingsByBooker(bookerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findWaitingBookingsByBooker(bookerId));
                 break;
             case "REJECTED":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findRejectedBookingsByBooker(bookerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findRejectedBookingsByBooker(bookerId));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
@@ -117,20 +117,20 @@ public class BookingServiceImpl implements BookingService {
                         .findFutureBookingsByOwner(ownerId));
                 break;
             case "PAST":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findPastBookingsByOwner(ownerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findPastBookingsByOwner(ownerId));
                 break;
             case "CURRENT":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findCurrentBookingsByOwner(ownerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findCurrentBookingsByOwner(ownerId));
                 break;
             case "WAITING":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findWaitingBookingsByOwner(ownerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findWaitingBookingsByOwner(ownerId));
                 break;
             case "REJECTED":
-                bookings = bookingMapper.toBookingDtoResponse(bookingRepository.
-                        findRejectedBookingsByOwner(ownerId));
+                bookings = bookingMapper.toBookingDtoResponse(bookingRepository
+                        .findRejectedBookingsByOwner(ownerId));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);

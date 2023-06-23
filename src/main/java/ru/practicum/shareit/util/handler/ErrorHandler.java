@@ -95,5 +95,4 @@ public class ErrorHandler {
         return new ErrorMessage("Cannot comment", e.getMessage());
     }
 
-
 }
