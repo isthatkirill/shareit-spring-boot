@@ -69,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = checkItemExistentAndGet(itemId);
         BookingShort nextBooking = null;
         BookingShort lastBooking = null;
-        if (item.getOwner().getId() == ownerId) {
+        if (item.getOwner().getId().equals(ownerId)) {
             nextBooking = bookingRepository
                     .findNextBooking(itemId, PageRequest.of(0, 1))
                     .stream().findFirst().orElse(null);

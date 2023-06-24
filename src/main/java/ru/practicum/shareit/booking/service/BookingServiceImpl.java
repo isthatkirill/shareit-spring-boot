@@ -36,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
         Long itemId = bookingDtoRequest.getItemId();
         itemService.checkItemExistentAndGet(itemId);
         Item item = itemService.checkItemAvailabilityAndGet(itemId);
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             throw new BookYourOwnItemException("Cannot book your own item");
         }
         Booking booking = bookingMapper.toBooking(bookingDtoRequest, user, item);
@@ -151,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
         Long ownerId = booking.getItem().getOwner().getId();
         Long bookerId = booking.getBooker().getId();
         Long itemId = booking.getItem().getId();
-        if (bookerId != userId && ownerId != userId) {
+        if (bookerId.equals(userId) && ownerId.equals(userId)) {
             log.info("User id={} is not booker or owner of item id={}", userId, itemId);
             throw new IncorrectOwnerException(String.format("User id=%s is not booker or owner of item id=%s",
                     userId, itemId));
@@ -161,7 +161,7 @@ public class BookingServiceImpl implements BookingService {
     private void isOwner(Booking booking, Long userId) {
         Long ownerId = booking.getItem().getOwner().getId();
         Long itemId = booking.getItem().getId();
-        if (ownerId != userId) {
+        if (ownerId.equals(userId)) {
             log.info("User id={} is not owner of item id={}", userId, itemId);
             throw new IncorrectOwnerException(String.format("User id=%s is not owner of item id=%s", userId, itemId));
         }
