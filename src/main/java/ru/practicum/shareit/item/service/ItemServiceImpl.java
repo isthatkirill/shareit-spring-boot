@@ -27,6 +27,7 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -69,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = checkItemExistentAndGet(itemId);
         BookingShort nextBooking = null;
         BookingShort lastBooking = null;
-        if (item.getOwner().getId().equals(ownerId)) {
+        if (Objects.equals(item.getOwner().getId(), ownerId)) {
             nextBooking = bookingRepository
                     .findNextBooking(itemId, PageRequest.of(0, 1))
                     .stream().findFirst().orElse(null);
