@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.repository;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -83,19 +82,27 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.start DESC")
     List<Booking> findAllBookingsByOwner(Long id);
 
-    @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
-            "WHERE b.item.id = ?1 " +
-            "AND b.start < CURRENT_TIMESTAMP " +
+    @Query(value = "SELECT u.id as bookerId, b.start_date as start, b.end_date as \"end\", b.id as id " +
+            "FROM booking b " +
+            "LEFT JOIN items i ON i.id = b.item_id " +
+            "LEFT JOIN users u ON u.id = b.booker_id " +
+            "WHERE i.id = ?1 " +
+            "AND b.start_date < NOW() " +
             "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start DESC ")
-    List<BookingShort> findLastBooking(Long itemId, Pageable pageable);
+            "ORDER BY b.start_date DESC " +
+            "LIMIT 1", nativeQuery = true)
+    List<BookingShort> findLastBooking(Long itemId);
 
-    @Query("SELECT b.booker.id as bookerId, b.start as start, b.end as end, b.id as id FROM Booking b " +
-            "WHERE b.item.id = ?1 " +
-            "AND b.start > CURRENT_TIMESTAMP " +
+    @Query(value = "SELECT u.id as bookerId, b.start_date as start, b.end_date as \"end\", b.id as id " +
+            "FROM booking b " +
+            "LEFT JOIN items i ON i.id = b.item_id " +
+            "LEFT JOIN users u ON u.id = b.booker_id " +
+            "WHERE i.id = ?1 " +
+            "AND b.start_date > NOW() " +
             "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start ASC ")
-    List<BookingShort> findNextBooking(Long itemId, Pageable pageable);
+            "ORDER BY b.start_date ASC " +
+            "LIMIT 1", nativeQuery = true)
+    List<BookingShort> findNextBooking(Long itemId);
 
     @Query("SELECT COUNT(b) > 0 FROM Booking b " +
             "WHERE b.item.id = ?1 AND " +

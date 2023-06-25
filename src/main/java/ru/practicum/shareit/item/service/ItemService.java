@@ -22,8 +22,6 @@ public interface ItemService {
 
     Item checkItemExistentAndGet(Long id);
 
-    Item checkItemAvailabilityAndGet(Long id);
-
     CommentDtoResponse createComment(Long itemId, Long userId, CommentDtoRequest commentDtoRequest);
 
 }

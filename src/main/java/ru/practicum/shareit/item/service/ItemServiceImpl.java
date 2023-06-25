@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.BookingShort;
@@ -21,7 +20,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.exception.CommentingDeniedException;
 import ru.practicum.shareit.util.exception.IncorrectOwnerException;
-import ru.practicum.shareit.util.exception.ItemNotAvailableException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.time.LocalDateTime;
@@ -45,8 +43,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDtoRequest create(ItemDtoRequest itemDtoRequest, Long ownerId) {
-        userService.checkUserExistentAndGet(ownerId);
-        Item item = itemMapper.toItem(itemDtoRequest, userService.checkUserExistentAndGet(ownerId), null);
+        User user = userService.checkUserExistentAndGet(ownerId);
+        Item item = itemMapper.toItem(itemDtoRequest, user, null);
         log.info("Item created: {} by owner id = {}", itemDtoRequest.getName(), ownerId);
         return itemMapper.toItemDtoRequest(itemRepository.save(item));
     }
@@ -54,9 +52,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDtoRequest update(ItemDtoRequest itemDtoRequest, Long ownerId, Long itemId) {
-        userService.checkUserExistentAndGet(ownerId);
+        User user = userService.checkUserExistentAndGet(ownerId);
         checkItemExistentAndGet(itemId);
-        Item item = getItemIfHaveCorrectOwner(itemMapper.toItem(itemDtoRequest, userService.checkUserExistentAndGet(ownerId), itemId));
+        Item item = getItemIfHaveCorrectOwner(itemMapper.toItem(itemDtoRequest, user, itemId));
         if (itemDtoRequest.getAvailable() != null) item.setAvailable(itemDtoRequest.getAvailable());
         if (itemDtoRequest.getName() != null) item.setName(itemDtoRequest.getName());
         if (itemDtoRequest.getDescription() != null) item.setDescription(itemDtoRequest.getDescription());
@@ -72,10 +70,10 @@ public class ItemServiceImpl implements ItemService {
         BookingShort lastBooking = null;
         if (Objects.equals(item.getOwner().getId(), ownerId)) {
             nextBooking = bookingRepository
-                    .findNextBooking(itemId, PageRequest.of(0, 1))
+                    .findNextBooking(itemId)
                     .stream().findFirst().orElse(null);
             lastBooking = bookingRepository
-                    .findLastBooking(itemId, PageRequest.of(0, 1))
+                    .findLastBooking(itemId)
                     .stream().findFirst().orElse(null);
         }
         List<CommentDtoResponse> comments = commentMapper
@@ -88,11 +86,24 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemDtoResponse> getByOwner(Long ownerId) {
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(ownerId);
-        List<ItemDtoResponse> itemDto = items.stream()
-                .map(i -> getById(i.getId(), ownerId))
-                .collect(Collectors.toList());
         log.info("Owner id={} requested list of his items", ownerId);
-        return itemDto;
+        return items.stream()
+                .map(i -> itemMapper.toItemDtoResponse(
+                        i,
+
+                        bookingRepository
+                                .findNextBooking(i.getId())
+                                .stream().findFirst().orElse(null),
+
+                        bookingRepository
+                                .findLastBooking(i.getId())
+                                .stream().findFirst().orElse(null),
+
+                        commentMapper
+                                .toCommentDtoResponse(commentRepository
+                                        .findByItemId(i.getId()))
+
+                )).collect(Collectors.toList());
     }
 
     @Override
@@ -121,14 +132,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item checkItemExistentAndGet(Long id) {
         return itemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Item.class, "Id:" + id));
+                .orElseThrow(() -> new NotFoundException(Item.class, "Id=" + id));
 
-    }
-
-    @Override
-    public Item checkItemAvailabilityAndGet(Long id) {
-        return itemRepository.findItemByIdEqualsAndAvailableIsTrue(id)
-                .orElseThrow(() -> new ItemNotAvailableException("Item is not available or not found. Id:" + id));
     }
 
     private Item getItemIfHaveCorrectOwner(Item item) {

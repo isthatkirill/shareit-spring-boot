@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
 
         log.info("User updated: {}", id);
         return userMapper.toUserDto(userRepository.save(oldUser));
-
     }
 
     @Override
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User checkUserExistentAndGet(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(User.class, "Id: " + id));
+                .orElseThrow(() -> new NotFoundException(User.class, "Id=" + id));
     }
 
 }

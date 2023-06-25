@@ -35,9 +35,10 @@ public class BookingServiceImpl implements BookingService {
     public BookingDtoResponse create(BookingDtoRequest bookingDtoRequest, Long userId) {
         User user = userService.checkUserExistentAndGet(userId);
         Long itemId = bookingDtoRequest.getItemId();
-        itemService.checkItemExistentAndGet(itemId);
-        Item item = itemService.checkItemAvailabilityAndGet(itemId);
-        if (Objects.equals(item.getOwner().getId(), userId)) {
+        Item item = itemService.checkItemExistentAndGet(itemId);
+        if (!item.isAvailable()) {
+            throw new ItemNotAvailableException("Item is not available. Id=" + itemId);
+        } else if (Objects.equals(item.getOwner().getId(), userId)) {
             throw new BookYourOwnItemException("Cannot book your own item");
         }
         Booking booking = bookingMapper.toBooking(bookingDtoRequest, user, item);
@@ -144,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking checkBookingExistentAndGet(Long id) {
         return bookingRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Booking.class, "Id:" + id));
+                .orElseThrow(() -> new NotFoundException(Booking.class, "Id=" + id));
     }
 
 
