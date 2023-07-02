@@ -26,4 +26,6 @@ public class ItemDtoRequest {
     @NotNull(message = "Must equals true or false")
     Boolean available;
 
+    Long requestId;
+
 }

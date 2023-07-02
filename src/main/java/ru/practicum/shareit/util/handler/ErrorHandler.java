@@ -95,4 +95,11 @@ public class ErrorHandler {
         return new ErrorMessage("Cannot comment", e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage illegalArgumentHandle(final IllegalArgumentException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Illegal argument", e.getMessage());
+    }
+
 }
