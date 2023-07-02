@@ -37,7 +37,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Transactional(readOnly = true)
     public List<ItemRequestDtoResponse> getAll(Integer from, Integer size, Long userId) {
         userService.checkUserExistentAndGet(userId);
-        if (from == null && size == null) {
+        if (from == null || size == null) {
             from = 0;
             size = Integer.MAX_VALUE;
         }
