@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService {
         User oldUser = checkUserExistentAndGet(id);
         if (userDto.getName() != null) oldUser.setName(userDto.getName());
         if (userDto.getEmail() != null) oldUser.setEmail(userDto.getEmail());
-
         log.info("User updated: {}", id);
         return userMapper.toUserDto(userRepository.save(oldUser));
     }
@@ -56,9 +55,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(Long id) {
+        log.info("Delete user id={}", id);
         userRepository.deleteById(id);
     }
-
 
     @Override
     public User checkUserExistentAndGet(Long id) {

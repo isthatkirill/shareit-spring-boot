@@ -74,11 +74,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDtoResponse> getByBookerId(Long bookerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(bookerId);
-        if (from == null || size == null) {
-            from = 0;
-            size = Integer.MAX_VALUE;
-        }
-        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, from < 0 ? 0 : size);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);
         List<BookingDtoResponse> bookings = new ArrayList<>();
         switch (state) {
             case "ALL":
@@ -115,11 +111,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(ownerId);
-        if (from == null || size == null) {
-            from = 0;
-            size = Integer.MAX_VALUE;
-        }
-        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, from < 0 ? 0 : size);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);
         List<BookingDtoResponse> bookings = new ArrayList<>();
         switch (state) {
             case "ALL":

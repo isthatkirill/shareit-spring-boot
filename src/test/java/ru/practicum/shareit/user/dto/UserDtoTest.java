@@ -28,9 +28,9 @@ class UserDtoTest {
         JsonContent<UserDto> result = json.write(userDto);
 
         assertThat(result)
-                .hasJsonPathNumberValue("$.id", 1L)
-                .hasJsonPathStringValue("$.email", "testemail@yahoo.com")
-                .hasJsonPathStringValue("$.name", "testName");
+                .hasJsonPathNumberValue("$.id", userDto.getId())
+                .hasJsonPathStringValue("$.email", userDto.getEmail())
+                .hasJsonPathStringValue("$.name", userDto.getName());
     }
 
     @Test
@@ -41,7 +41,7 @@ class UserDtoTest {
         JsonContent<UserDto> result = json.write(userDto);
 
         assertThat(result)
-                .hasJsonPathNumberValue("$.id", 1L)
+                .hasJsonPathNumberValue("$.id", userDto.getId())
                 .hasEmptyJsonPathValue("$.email")
                 .hasEmptyJsonPathValue("$.name");
     }

@@ -37,15 +37,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Transactional(readOnly = true)
     public List<ItemRequestDtoResponse> getAll(Integer from, Integer size, Long userId) {
         userService.checkUserExistentAndGet(userId);
-        if (from == null || size == null) {
-            from = 0;
-            size = Integer.MAX_VALUE;
-        }
-
         log.info("User with id={} requested {} items from item {}", userId, size, from);
         return itemRequestMapper.toItemRequestDtoResponse(itemRequestRepository
                 .findAllByRequesterIdNotOrderByCreatedDesc(userId,
-                        PageRequest.of(from > 0 ? from / size : 0, from < 0 ? 0 : size)));
+                        PageRequest.of(from > 0 ? from / size : 0,  size)));
     }
 
     @Override

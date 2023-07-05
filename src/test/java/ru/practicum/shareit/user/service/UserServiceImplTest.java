@@ -7,11 +7,13 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -113,6 +115,31 @@ class UserServiceImplTest {
         assertThat(userService.getAll())
                 .hasSize(2)
                 .containsExactlyInAnyOrder(userDto1, userDto2);
+    }
+
+    @Test
+    @Order(8)
+    void createUserWithDuplicateEmail() {
+        UserDto userDto = UserDto.builder()
+                .name("userWithDuplicateEmail")
+                .email("firsttestemail@yahoo.com")
+                .build();
+
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            userService.create(userDto);
+        });
+    }
+
+    @Test
+    @Order(9)
+    void updateUserWithDuplicateEmail() {
+        UserDto userDtoUpdated = UserDto.builder()
+                .email("secondtestemail@yahoo.com")
+                .build();
+
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            userService.update(userDtoUpdated, 2L);
+        });
     }
 
 }

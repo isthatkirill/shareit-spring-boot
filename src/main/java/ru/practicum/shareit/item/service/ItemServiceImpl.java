@@ -86,12 +86,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDtoResponse> getByOwner(Long ownerId, Integer from, Integer size) {
-        if (from == null || size == null) {
-            from = 0;
-            size = Integer.MAX_VALUE;
-        }
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(ownerId,
-                PageRequest.of(from > 0 ? from / size : 0, from < 0 ? 0 : size));
+                PageRequest.of(from > 0 ? from / size : 0,  size));
         log.info("Owner id={} requested list of his items", ownerId);
         return items.stream()
                 .map(i -> itemMapper.toItemDtoResponse(
@@ -116,23 +112,19 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemDtoRequest> search(String text, Integer from, Integer size) {
         if (text.equals("")) return new ArrayList<>();
-        if (from == null || size == null) {
-            from = 0;
-            size = Integer.MAX_VALUE;
-        }
         log.info("search for an item on request '{}'", text);
         return itemMapper.toItemDtoRequest(itemRepository.search(text,
-                        PageRequest.of(from > 0 ? from / size : 0, from < 0 ? 0 : size)));
+                PageRequest.of(from > 0 ? from / size : 0,  size)));
     }
 
     @Override
     @Transactional
     public CommentDtoResponse createComment(Long itemId, Long userId, CommentDtoRequest commentDtoRequest) {
+        User user = userService.checkUserExistentAndGet(userId);
+        Item item = checkItemExistentAndGet(itemId);
         if (!bookingRepository.checkIfUserBookedItem(itemId, userId)) {
             throw new CommentingDeniedException("You didn't book this item.");
         }
-        User user = userService.checkUserExistentAndGet(userId);
-        Item item = checkItemExistentAndGet(itemId);
         Comment comment = commentMapper.toComment(commentDtoRequest.getText(), item, user);
         comment.setCreated(LocalDateTime.now());
         commentRepository.save(comment);

@@ -1,0 +1,102 @@
+package ru.practicum.shareit.user.service;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceMockTest {
+
+    @InjectMocks
+    private UserServiceImpl userService;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    private final UserDto userDto = UserDto.builder()
+            .id(1L)
+            .name("testName")
+            .email("testEmail")
+            .build();
+
+    private final User user = User.builder()
+            .id(1L)
+            .name("testName")
+            .email("testEmail")
+            .build();
+
+    @Test
+    void createUserTest() {
+        when(userRepository.save(any())).thenReturn(user);
+        when(userMapper.toUser(any())).thenReturn(user);
+        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
+
+        userService.create(userDto);
+
+        verify(userMapper, times(1)).toUser(userDto);
+        verify(userMapper, times(1)).toUserDto(user);
+        verify(userRepository, times(1)).save(user);
+        verifyNoMoreInteractions(userMapper, userRepository);
+    }
+
+    @Test
+    void updateUserTest() {
+        when(userRepository.save(any())).thenReturn(user);
+        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        userService.update(userDto, 1L);
+
+        verify(userMapper, times(1)).toUserDto(user);
+        verify(userRepository, times(1)).save(user);
+        verify(userRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(userMapper, userRepository);
+    }
+
+    @Test
+    void getUserByIdTest() {
+        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        userService.getById(1L);
+
+        verify(userMapper, times(1)).toUserDto(user);
+        verify(userRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(userMapper, userRepository);
+    }
+
+    @Test
+    void getAllUsersTest() {
+        when(userMapper.toUserDto(anyList())).thenReturn(List.of(userDto));
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        userService.getAll();
+
+        verify(userMapper, times(1)).toUserDto(List.of(user));
+        verify(userRepository, times(1)).findAll();
+        verifyNoMoreInteractions(userMapper, userRepository);
+    }
+
+    @Test
+    void deleteUserByIdTest() {
+        userService.delete(1L);
+
+        verify(userRepository, times(1)).deleteById(1L);
+        verifyNoMoreInteractions(userMapper, userRepository);
+    }
+
+}

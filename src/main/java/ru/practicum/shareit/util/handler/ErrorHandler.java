@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.util.exception.*;
 
+import javax.validation.ConstraintViolationException;
+
 
 @Slf4j
 @RestControllerAdvice("ru.practicum.shareit")
@@ -29,6 +31,12 @@ public class ErrorHandler {
     public ErrorMessage missingHeaderHandle(final MissingRequestHeaderException e) {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Missing request header", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage missingHeaderHandle(final ConstraintViolationException e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Validation error", e.getMessage());
     }
 
     @ExceptionHandler

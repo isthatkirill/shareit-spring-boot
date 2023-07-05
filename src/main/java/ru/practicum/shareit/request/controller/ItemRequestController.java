@@ -8,6 +8,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDtoResponse;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Validated
@@ -25,8 +27,8 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDtoResponse> getAll(@RequestParam(value = "from", required = false) Integer from,
-                                               @RequestParam(value = "size", required = false) Integer size,
+    public List<ItemRequestDtoResponse> getAll(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                               @RequestParam(defaultValue = "10") @Positive Integer size,
                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemRequestService.getAll(from, size, userId);
     }

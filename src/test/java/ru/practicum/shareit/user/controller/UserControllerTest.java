@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,8 +25,10 @@ class UserControllerTest {
 
     @MockBean
     UserService userService;
+
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private ObjectMapper mapper;
 
@@ -44,7 +45,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void saveNewUserTest() {
+    void createNewUserTest() {
         when(userService.create(any())).thenReturn(userDto);
 
         mvc.perform(post("/users")
@@ -57,11 +58,12 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name").value(userDto.getName()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()));
 
+        verify(userService, times(1)).create(userDto);
     }
 
     @Test
     @SneakyThrows
-    void saveNewUserWithInvalidEmailTest() {
+    void createNewUserWithInvalidEmailTest() {
         userDto.setEmail("testInvalidEmail");
         when(userService.create(any())).thenReturn(userDto);
 
@@ -73,11 +75,13 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("Email must satisfy pattern"));
+
+        verify(userService, never()).create(any());
     }
 
     @Test
     @SneakyThrows
-    void saveNewUserWithNullNameTest() {
+    void createNewUserWithNullNameTest() {
         userDto.setName(null);
         when(userService.create(any())).thenReturn(userDto);
 
@@ -89,6 +93,8 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("Name cannot be empty or null"));
+
+        verify(userService, never()).create(any());
     }
 
     @Test
@@ -106,6 +112,8 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(userDto.getId()))
                 .andExpect(jsonPath("$.name").value(userDto.getName()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()));
+
+        verify(userService, times(1)).update(userDto, 1L);
     }
 
     @Test
