@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemRepositoryTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Test
     void searchTest() {

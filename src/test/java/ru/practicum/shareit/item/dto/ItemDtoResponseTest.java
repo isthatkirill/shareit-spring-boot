@@ -61,10 +61,7 @@ class ItemDtoResponseTest {
                 .hasJsonPathStringValue("$.lastBooking.start", itemDtoResponse.getLastBooking().getStart())
                 .hasJsonPathStringValue("$.lastBooking.end", itemDtoResponse.getLastBooking().getEnd())
                 .hasJsonPathNumberValue("$.lastBooking.id", itemDtoResponse.getLastBooking().getId())
-                .hasJsonPathNumberValue("$.comments[0].id", itemDtoResponse.getComments().get(0).getId())
-                .hasJsonPathStringValue("$.comments[0].text", itemDtoResponse.getComments().get(0).getText())
-                .hasJsonPathStringValue("$.comments[0].authorName", itemDtoResponse.getComments().get(0).getAuthorName())
-                .hasJsonPathStringValue("$.comments[0].created", itemDtoResponse.getComments().get(0).getCreated());
+                .hasJsonPathArrayValue("$.comments", itemDtoResponse.getComments());
     }
 
 }

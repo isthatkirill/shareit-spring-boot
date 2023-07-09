@@ -246,6 +246,23 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
+    void getByOwnerWithInvalidRequestParamsTest() {
+        int from = -3, size = 2;
+        when(itemService.getByOwner(anyLong(), anyInt(), anyInt()))
+                .thenReturn(List.of(itemDtoResp));
+
+        mvc.perform(get("/items?from={from}&size={size}", from, size)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation error"));
+
+        verify(itemService, never()).getByOwner(anyLong(),anyInt(), anyInt());
+    }
+
+    @Test
+    @SneakyThrows
     void getByOwnerWithDefaultRequestParamsTest() {
         when(itemService.getByOwner(anyLong(), anyInt(), anyInt()))
                 .thenReturn(List.of(itemDtoResp));

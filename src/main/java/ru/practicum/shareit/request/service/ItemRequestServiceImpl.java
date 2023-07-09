@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestDtoResponse;
+import ru.practicum.shareit.request.dto.ItemRequestDtoLong;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -26,35 +26,37 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDtoResponse create(ItemRequestDto itemRequestDto, Long userId) {
+    public ItemRequestDtoLong create(ItemRequestDto itemRequestDto, Long userId) {
         ItemRequest itemRequest = itemRequestMapper
                 .toItemRequest(userService.checkUserExistentAndGet(userId), itemRequestDto);
         log.info("New item request created by user id={} with description={}", userId, itemRequestDto.getDescription());
-        return itemRequestMapper.toItemRequestDtoResponse(itemRequestRepository.save(itemRequest));
+        return itemRequestMapper.toItemRequestDtoLong(itemRequestRepository.save(itemRequest));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemRequestDtoResponse> getAll(Integer from, Integer size, Long userId) {
+    public List<ItemRequestDtoLong> getAll(Integer from, Integer size, Long userId) {
         userService.checkUserExistentAndGet(userId);
         log.info("User with id={} requested {} items from item {}", userId, size, from);
-        return itemRequestMapper.toItemRequestDtoResponse(itemRequestRepository
+        return itemRequestMapper.toItemRequestDtoLong(itemRequestRepository
                 .findAllByRequesterIdNotOrderByCreatedDesc(userId,
                         PageRequest.of(from > 0 ? from / size : 0,  size)));
     }
 
     @Override
-    public List<ItemRequestDtoResponse> getOwn(Long userId) {
+    @Transactional(readOnly = true)
+    public List<ItemRequestDtoLong> getOwn(Long userId) {
         userService.checkUserExistentAndGet(userId);
         log.info("User with id={} requested his item requests list", userId);
-        return itemRequestMapper.toItemRequestDtoResponse(itemRequestRepository
+        return itemRequestMapper.toItemRequestDtoLong(itemRequestRepository
                 .findAllByRequesterIdOrderByCreatedDesc(userId));
     }
 
     @Override
-    public ItemRequestDtoResponse getById(Long requestId, Long userId) {
+    @Transactional(readOnly = true)
+    public ItemRequestDtoLong getById(Long requestId, Long userId) {
         userService.checkUserExistentAndGet(userId);
-        return itemRequestMapper.toItemRequestDtoResponse(checkItemRequestExistentAndGet(requestId));
+        return itemRequestMapper.toItemRequestDtoLong(checkItemRequestExistentAndGet(requestId));
     }
 
     private ItemRequest checkItemRequestExistentAndGet(Long requestId) {

@@ -32,6 +32,7 @@ public class ErrorHandler {
         log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         return new ErrorMessage("Missing request header", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage missingHeaderHandle(final ConstraintViolationException e) {

@@ -27,17 +27,9 @@ class UserServiceMockTest {
     @Mock
     private UserMapper userMapper;
 
-    private final UserDto userDto = UserDto.builder()
-            .id(1L)
-            .name("testName")
-            .email("testEmail")
-            .build();
+    private final UserDto userDto = new UserDto();
 
-    private final User user = User.builder()
-            .id(1L)
-            .name("testName")
-            .email("testEmail")
-            .build();
+    private final User user = new User();
 
     @Test
     void createUserTest() {

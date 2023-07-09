@@ -138,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
-    private Item getItemIfHaveCorrectOwner(Item item) {
+    public Item getItemIfHaveCorrectOwner(Item item) {
         return itemRepository.findById(item.getId())
                 .filter(i -> i.getOwner().equals(item.getOwner()))
                 .orElseThrow(() -> new IncorrectOwnerException("You are not allowed to edit this item"));

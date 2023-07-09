@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Sql(value = {"/test-users.sql", "/test-items.sql", "/test-comments.sql"})
+@Sql(value = {"/test-users.sql", "/test-items.sql", "/test-comments-2.sql"})
 class CommentRepositoryTest {
 
     @Autowired

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.item.comment.dto.CommentDtoRequest;
 import ru.practicum.shareit.item.dto.ItemDtoRequest;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ItemServiceImplTest {
 
@@ -138,7 +140,7 @@ class ItemServiceImplTest {
 
     @Test
     @Order(8)
-    @Sql(value = {"/test-comments-itemservice.sql", "/test-bookings-itemservice.sql"})
+    @Sql(value = {"/test-comments-1.sql", "/test-bookings.sql"})
     void getItemByIdByOwnerTest() {
         ItemDtoResponse itemDto = itemService.getById(1L, 1L);
 

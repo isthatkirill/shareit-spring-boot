@@ -37,12 +37,10 @@ class ItemMapperTest {
 
         assertThat(item).isNotNull()
                 .hasFieldOrPropertyWithValue("id", 1L)
-                .hasFieldOrPropertyWithValue("name", "testName")
-                .hasFieldOrPropertyWithValue("description", "testDescription")
-                .hasFieldOrPropertyWithValue("available", true)
-                .hasFieldOrPropertyWithValue("owner.name", "testName")
-                .hasFieldOrPropertyWithValue("owner.email", "testEmail@yandex.ru")
-                .hasFieldOrPropertyWithValue("owner.id", 1L);
+                .hasFieldOrPropertyWithValue("name", itemDto.getName())
+                .hasFieldOrPropertyWithValue("description", itemDto.getDescription())
+                .hasFieldOrPropertyWithValue("available", itemDto.getAvailable())
+                .hasFieldOrPropertyWithValue("owner", user);
     }
 
     @Test
@@ -59,11 +57,11 @@ class ItemMapperTest {
         ItemDtoRequest itemDtoRequest = mapper.toItemDtoRequest(item);
 
         assertThat(itemDtoRequest).isNotNull()
-                .hasFieldOrPropertyWithValue("id", 4L)
-                .hasFieldOrPropertyWithValue("name", "testItem")
-                .hasFieldOrPropertyWithValue("description", "testItemDesc")
-                .hasFieldOrPropertyWithValue("available", true)
-                .hasFieldOrPropertyWithValue("requestId", 11L);
+                .hasFieldOrPropertyWithValue("id", item.getId())
+                .hasFieldOrPropertyWithValue("name", item.getName())
+                .hasFieldOrPropertyWithValue("description", item.getDescription())
+                .hasFieldOrPropertyWithValue("available", item.isAvailable())
+                .hasFieldOrPropertyWithValue("requestId", item.getRequestId());
     }
 
     @Test
@@ -94,10 +92,10 @@ class ItemMapperTest {
         ItemDtoResponse itemDtoResponse = mapper.toItemDtoResponse(item, nextBooking, lastBooking, comments);
 
         assertThat(itemDtoResponse).isNotNull()
-                .hasFieldOrPropertyWithValue("id", 4L)
-                .hasFieldOrPropertyWithValue("name", "testItem")
-                .hasFieldOrPropertyWithValue("description", "testItemDesc")
-                .hasFieldOrPropertyWithValue("available", true)
+                .hasFieldOrPropertyWithValue("id", item.getId())
+                .hasFieldOrPropertyWithValue("name", item.getName())
+                .hasFieldOrPropertyWithValue("description", item.getDescription())
+                .hasFieldOrPropertyWithValue("available", item.isAvailable())
                 .hasFieldOrPropertyWithValue("nextBooking", nextBooking)
                 .hasFieldOrPropertyWithValue("lastBooking", lastBooking)
                 .hasFieldOrPropertyWithValue("comments", comments);
