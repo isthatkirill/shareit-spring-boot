@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.request.model.ItemRequest;
 
@@ -15,8 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Sql(value = {"/test-users.sql", "/test-item-req.sql"})
+@Sql(value = {"/test-schema.sql","/test-users.sql", "/test-item-req.sql"})
 class ItemRequestRepositoryTest {
 
     @Autowired

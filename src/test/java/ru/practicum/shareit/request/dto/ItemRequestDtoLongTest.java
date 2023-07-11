@@ -19,7 +19,7 @@ class ItemRequestDtoLongTest {
     @Autowired
     private JacksonTester<ItemRequestDtoLong> json;
 
-    private ItemRequestDtoLong itemRequestDtoLong = ItemRequestDtoLong.builder()
+    private final ItemRequestDtoLong itemRequestDtoLong = ItemRequestDtoLong.builder()
             .id(1L)
             .description("testDesc")
             .created(LocalDateTime.now())

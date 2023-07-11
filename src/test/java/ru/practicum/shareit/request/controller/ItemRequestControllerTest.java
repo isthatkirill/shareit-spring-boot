@@ -58,6 +58,7 @@ class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dtoLong.getId()))
+                .andExpect(jsonPath("$.created").hasJsonPath())
                 .andExpect(jsonPath("$.description").value(dtoLong.getDescription()));
 
         verify(itemRequestService, times(1)).create(dto, userId);
@@ -117,6 +118,7 @@ class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(dtoLong.getId()))
+                .andExpect(jsonPath("$[0].created").hasJsonPath())
                 .andExpect(jsonPath("$[0].description").value(dtoLong.getDescription()));
 
         verify(itemRequestService, times(1)).getAll(from, size, userId);
@@ -172,6 +174,7 @@ class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(dtoLong.getId()))
+                .andExpect(jsonPath("$[0].created").hasJsonPath())
                 .andExpect(jsonPath("$[0].description").value(dtoLong.getDescription()));
 
         verify(itemRequestService, times(1)).getOwn(userId);
@@ -207,6 +210,7 @@ class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dtoLong.getId()))
+                .andExpect(jsonPath("$.created").hasJsonPath())
                 .andExpect(jsonPath("$.description").value(dtoLong.getDescription()));
 
         verify(itemRequestService, times(1)).getById(requestId, userId);

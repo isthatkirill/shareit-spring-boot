@@ -72,6 +72,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDtoResponse> getByBookerId(Long bookerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(bookerId);
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);
@@ -109,6 +110,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(ownerId);
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);

@@ -17,8 +17,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.booker.id = ?1 " +
             "AND CURRENT_TIMESTAMP < b.start " +
-            "ORDER BY b.start DESC"
-    )
+            "ORDER BY b.start DESC")
     List<Booking> findFutureBookingsByBooker(Long id, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
@@ -49,8 +48,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.item.owner.id = ?1 " +
             "AND CURRENT_TIMESTAMP < b.start " +
-            "ORDER BY b.start DESC"
-    )
+            "ORDER BY b.start DESC")
     List<Booking> findFutureBookingsByOwner(Long id, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +

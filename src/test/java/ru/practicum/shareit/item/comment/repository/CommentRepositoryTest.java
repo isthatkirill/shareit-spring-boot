@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.item.comment.model.Comment;
 
@@ -14,8 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Sql(value = {"/test-users.sql", "/test-items.sql", "/test-comments-2.sql"})
+@Sql(value = {"/test-schema.sql", "/test-users.sql", "/test-items.sql", "/test-comments-2.sql"})
 class CommentRepositoryTest {
 
     @Autowired

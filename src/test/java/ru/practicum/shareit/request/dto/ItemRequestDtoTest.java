@@ -15,7 +15,7 @@ class ItemRequestDtoTest {
     @Autowired
     private JacksonTester<ItemRequestDto> json;
 
-    private ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+    private final ItemRequestDto itemRequestDto = ItemRequestDto.builder()
             .description("testDesc")
             .build();
 

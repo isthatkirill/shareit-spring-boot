@@ -138,7 +138,7 @@ class ItemServiceMockTest {
     @Test
     void getByOwner() {
         Long ownerId = 1L;
-        Integer from = 0, size = 10;
+        int from = 0, size = 10;
 
         Item item = Item.builder()
                 .id(1L).build();
@@ -166,7 +166,7 @@ class ItemServiceMockTest {
     @Test
     void search() {
         String text = "text";
-        Integer from = 0, size = 10;
+        int from = 0, size = 10;
 
         List<Item> items = List.of(new Item());
         List<ItemDtoRequest> itemDtos = List.of(new ItemDtoRequest());
