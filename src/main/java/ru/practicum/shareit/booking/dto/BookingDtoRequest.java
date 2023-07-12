@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @ValidBookingDate
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDtoRequest {
 

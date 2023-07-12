@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
@@ -70,33 +72,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getByBookerId(Long bookerId, String state) {
+    @Transactional(readOnly = true)
+    public List<BookingDtoResponse> getByBookerId(Long bookerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(bookerId);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);
         List<BookingDtoResponse> bookings = new ArrayList<>();
         switch (state) {
             case "ALL":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findAllByBookerIdOrderByStartDesc(bookerId));
+                        .findAllByBookerIdOrderByStartDesc(bookerId, pageable));
                 break;
             case "FUTURE":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findFutureBookingsByBooker(bookerId));
+                        .findFutureBookingsByBooker(bookerId, pageable));
                 break;
             case "PAST":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findPastBookingsByBooker(bookerId));
+                        .findPastBookingsByBooker(bookerId, pageable));
                 break;
             case "CURRENT":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findCurrentBookingsByBooker(bookerId));
+                        .findCurrentBookingsByBooker(bookerId, pageable));
                 break;
             case "WAITING":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findWaitingBookingsByBooker(bookerId));
+                        .findWaitingBookingsByBooker(bookerId, pageable));
                 break;
             case "REJECTED":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findRejectedBookingsByBooker(bookerId));
+                        .findRejectedBookingsByBooker(bookerId, pageable));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
@@ -106,33 +110,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state) {
+    @Transactional(readOnly = true)
+    public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(ownerId);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0,  size);
         List<BookingDtoResponse> bookings = new ArrayList<>();
         switch (state) {
             case "ALL":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findAllBookingsByOwner(ownerId));
+                        .findAllBookingsByOwner(ownerId, pageable));
                 break;
             case "FUTURE":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findFutureBookingsByOwner(ownerId));
+                        .findFutureBookingsByOwner(ownerId, pageable));
                 break;
             case "PAST":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findPastBookingsByOwner(ownerId));
+                        .findPastBookingsByOwner(ownerId, pageable));
                 break;
             case "CURRENT":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findCurrentBookingsByOwner(ownerId));
+                        .findCurrentBookingsByOwner(ownerId, pageable));
                 break;
             case "WAITING":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findWaitingBookingsByOwner(ownerId));
+                        .findWaitingBookingsByOwner(ownerId, pageable));
                 break;
             case "REJECTED":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
-                        .findRejectedBookingsByOwner(ownerId));
+                        .findRejectedBookingsByOwner(ownerId, pageable));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);

@@ -16,9 +16,9 @@ public interface ItemService {
 
     ItemDtoResponse getById(Long itemId, Long userId);
 
-    List<ItemDtoResponse> getByOwner(Long ownerId);
+    List<ItemDtoResponse> getByOwner(Long ownerId, Integer from, Integer size);
 
-    List<ItemDtoRequest> search(String text);
+    List<ItemDtoRequest> search(String text, Integer from, Integer size);
 
     Item checkItemExistentAndGet(Long id);
 
