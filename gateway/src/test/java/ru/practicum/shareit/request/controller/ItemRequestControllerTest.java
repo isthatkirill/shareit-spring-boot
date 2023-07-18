@@ -6,11 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.request.ItemRequestController;
+import ru.practicum.shareit.request.RequestClient;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoLong;
-import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -26,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ItemRequestControllerTest {
 
     @MockBean
-    private ItemRequestService itemRequestService;
+    private RequestClient requestClient;
 
     @Autowired
     private MockMvc mvc;
@@ -47,8 +50,8 @@ class ItemRequestControllerTest {
     void createTest() {
         Long userId = 1L;
 
-        when(itemRequestService.create(any(), anyLong()))
-                .thenReturn(dtoLong);
+        when(requestClient.create(any(), anyLong()))
+                .thenReturn(new ResponseEntity<>(dtoLong, HttpStatus.OK));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(dto))
@@ -61,7 +64,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.created").hasJsonPath())
                 .andExpect(jsonPath("$.description").value(dtoLong.getDescription()));
 
-        verify(itemRequestService, times(1)).create(dto, userId);
+        verify(requestClient, times(1)).create(dto, userId);
     }
 
     @Test
@@ -70,8 +73,8 @@ class ItemRequestControllerTest {
         Long userId = 1L;
         dto.setDescription("");
 
-        when(itemRequestService.create(any(), anyLong()))
-                .thenReturn(dtoLong);
+        when(requestClient.create(any(), anyLong()))
+                .thenReturn(new ResponseEntity<>(dtoLong, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(dto))
@@ -83,14 +86,14 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("Description cannot be null"));
 
-        verify(itemRequestService, never()).create(any(), anyLong());
+        verify(requestClient, never()).create(any(), anyLong());
     }
 
     @Test
     @SneakyThrows
     void createWithoutHeaderTest() {
-        when(itemRequestService.create(any(), anyLong()))
-                .thenReturn(dtoLong);
+        when(requestClient.create(any(), anyLong()))
+                .thenReturn(new ResponseEntity<>(dtoLong, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(dto))
@@ -100,7 +103,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(itemRequestService, never()).create(any(), anyLong());
+        verify(requestClient, never()).create(any(), anyLong());
     }
 
     @Test
@@ -109,8 +112,8 @@ class ItemRequestControllerTest {
         int from = 0, size = 5;
         Long userId = 1L;
 
-        when(itemRequestService.getAll(anyInt(), anyInt(), anyLong()))
-                .thenReturn(List.of(dtoLong));
+        when(requestClient.getAll(anyInt(), anyInt(), anyLong()))
+                .thenReturn(new ResponseEntity<>(List.of(dtoLong), HttpStatus.OK));
 
         mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -121,7 +124,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].created").hasJsonPath())
                 .andExpect(jsonPath("$[0].description").value(dtoLong.getDescription()));
 
-        verify(itemRequestService, times(1)).getAll(from, size, userId);
+        verify(requestClient, times(1)).getAll(from, size, userId);
     }
 
     @Test
@@ -130,8 +133,8 @@ class ItemRequestControllerTest {
         int from = -10, size = -15;
         Long userId = 1L;
 
-        when(itemRequestService.getAll(anyInt(), anyInt(), anyLong()))
-                .thenReturn(List.of(dtoLong));
+        when(requestClient.getAll(anyInt(), anyInt(), anyLong()))
+                .thenReturn(new ResponseEntity<>(List.of(dtoLong), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -140,7 +143,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation error"));
 
-        verify(itemRequestService, never()).getAll(anyInt(), anyInt(), anyLong());
+        verify(requestClient, never()).getAll(anyInt(), anyInt(), anyLong());
     }
 
     @Test
@@ -148,8 +151,8 @@ class ItemRequestControllerTest {
     void getAllWithMissingHeaderTest() {
         int from = 0, size = 10;
 
-        when(itemRequestService.getAll(anyInt(), anyInt(), anyLong()))
-                .thenReturn(List.of(dtoLong));
+        when(requestClient.getAll(anyInt(), anyInt(), anyLong()))
+                .thenReturn(new ResponseEntity<>(List.of(dtoLong), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -157,7 +160,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(itemRequestService, never()).getAll(anyInt(), anyInt(), anyLong());
+        verify(requestClient, never()).getAll(anyInt(), anyInt(), anyLong());
     }
 
     @Test
@@ -165,8 +168,8 @@ class ItemRequestControllerTest {
     void getOwnTest() {
         Long userId = 1L;
 
-        when(itemRequestService.getOwn(anyLong()))
-                .thenReturn(List.of(dtoLong));
+        when(requestClient.getOwn(anyLong()))
+                .thenReturn(new ResponseEntity<>(List.of(dtoLong), HttpStatus.OK));
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -177,14 +180,14 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].created").hasJsonPath())
                 .andExpect(jsonPath("$[0].description").value(dtoLong.getDescription()));
 
-        verify(itemRequestService, times(1)).getOwn(userId);
+        verify(requestClient, times(1)).getOwn(userId);
     }
 
     @Test
     @SneakyThrows
     void getOwnWithMissingHeaderTest() {
-        when(itemRequestService.getOwn(anyLong()))
-                .thenReturn(List.of(dtoLong));
+        when(requestClient.getOwn(anyLong()))
+                .thenReturn(new ResponseEntity<>(List.of(dtoLong), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -192,7 +195,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(itemRequestService, never()).getOwn(anyLong());
+        verify(requestClient, never()).getOwn(anyLong());
     }
 
     @Test
@@ -201,8 +204,8 @@ class ItemRequestControllerTest {
         Long userId = 1L;
         Long requestId = 2L;
 
-        when(itemRequestService.getById(anyLong(), anyLong()))
-                .thenReturn(dtoLong);
+        when(requestClient.getById(anyLong(), anyLong()))
+                .thenReturn(new ResponseEntity<>(dtoLong, HttpStatus.OK));
 
         mvc.perform(get("/requests/{requestId}", requestId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -213,7 +216,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.created").hasJsonPath())
                 .andExpect(jsonPath("$.description").value(dtoLong.getDescription()));
 
-        verify(itemRequestService, times(1)).getById(requestId, userId);
+        verify(requestClient, times(1)).getById(requestId, userId);
     }
 
     @Test
@@ -221,8 +224,8 @@ class ItemRequestControllerTest {
     void getByIdWithMissingRequestHeaderTest() {
         Long requestId = 2L;
 
-        when(itemRequestService.getById(anyLong(), anyLong()))
-                .thenReturn(dtoLong);
+        when(requestClient.getById(anyLong(), anyLong()))
+                .thenReturn(new ResponseEntity<>(dtoLong, HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/requests/{requestId}", requestId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -230,7 +233,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(itemRequestService, never()).getById(anyLong(), anyLong());
+        verify(requestClient, never()).getById(anyLong(), anyLong());
     }
 
 }

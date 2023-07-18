@@ -7,12 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.booking.BookingClient;
+import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
-import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.dto.Status;
 import ru.practicum.shareit.item.dto.ItemDtoRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -29,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookingControllerTest {
 
     @MockBean
-    private BookingService bookingService;
+    private BookingClient bookingClient;
 
     @Autowired
     private ObjectMapper mapper;
@@ -61,7 +64,7 @@ class BookingControllerTest {
     @Test
     @SneakyThrows
     void createTest() {
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.OK));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -82,7 +85,7 @@ class BookingControllerTest {
     @SneakyThrows
     void createNullStartTest() {
         bookingDtoRequest.setStart(null);
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -94,14 +97,14 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("Start of booking cannot be null"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
     @SneakyThrows
     void createNullEndTest() {
         bookingDtoRequest.setEnd(null);
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -113,14 +116,14 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("End of booking cannot be null"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
     @SneakyThrows
     void createStartInPastTest() {
         bookingDtoRequest.setStart(LocalDateTime.now().minusDays(1));
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -132,14 +135,14 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("Start of booking cannot be in past"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
     @SneakyThrows
     void createEndInPastTest() {
         bookingDtoRequest.setEnd(LocalDateTime.now().minusDays(1));
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -151,7 +154,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("End of booking cannot be in past"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
@@ -159,7 +162,7 @@ class BookingControllerTest {
     void createEndEarlierThanStartTest() {
         bookingDtoRequest.setEnd(LocalDateTime.now().plusDays(1));
         bookingDtoRequest.setStart(LocalDateTime.now().plusDays(2));
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -171,7 +174,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("End of booking cannot be earlier than start"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
@@ -181,7 +184,7 @@ class BookingControllerTest {
 
         bookingDtoRequest.setEnd(time);
         bookingDtoRequest.setStart(time);
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -193,13 +196,13 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.error").value("Validation error"))
                 .andExpect(jsonPath("$.description").value("End of booking cannot equals start"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
     @SneakyThrows
     void createWithMissingHeaderTest() {
-        when(bookingService.create(any(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.create(any(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoRequest))
@@ -209,7 +212,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(bookingService, never()).create(any(), anyLong());
+        verify(bookingClient, never()).create(any(), anyLong());
     }
 
     @Test
@@ -218,8 +221,8 @@ class BookingControllerTest {
         Long bookingId = 1L;
         boolean approved = true;
 
-        when(bookingService.approve(anyLong(), anyLong(), anyBoolean()))
-                .thenReturn(bookingDtoResponse);
+        when(bookingClient.approve(anyLong(), anyLong(), anyBoolean()))
+                .thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.OK));
 
         mvc.perform(patch("/bookings/{bookingId}?approved={approved}", bookingId, approved)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -234,7 +237,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.end").hasJsonPath())
                 .andExpect(jsonPath("$.status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).approve(1L, bookingId, approved);
+        verify(bookingClient, times(1)).approve(1L, bookingId, approved);
     }
 
     @Test
@@ -242,8 +245,8 @@ class BookingControllerTest {
     void approveMissingRequestParamTest() {
         Long bookingId = 1L;
 
-        when(bookingService.approve(anyLong(), anyLong(), anyBoolean()))
-                .thenReturn(bookingDtoResponse);
+        when(bookingClient.approve(anyLong(), anyLong(), anyBoolean()))
+                .thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -253,7 +256,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request parameter"));
 
-        verify(bookingService, never()).approve(anyLong(), anyLong(), anyBoolean());
+        verify(bookingClient, never()).approve(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -262,8 +265,8 @@ class BookingControllerTest {
         Long bookingId = 1L;
         boolean approved = true;
 
-        when(bookingService.approve(anyLong(), anyLong(), anyBoolean()))
-                .thenReturn(bookingDtoResponse);
+        when(bookingClient.approve(anyLong(), anyLong(), anyBoolean()))
+                .thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(patch("/bookings/{bookingId}?approved={approved}", bookingId, approved)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -272,7 +275,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(bookingService, never()).approve(anyLong(), anyLong(), anyBoolean());
+        verify(bookingClient, never()).approve(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -280,7 +283,7 @@ class BookingControllerTest {
     void getByIdTest() {
         Long bookingId = 1L;
 
-        when(bookingService.getById(anyLong(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.getById(anyLong(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.OK));
 
         mvc.perform(get("/bookings/{bookingId}", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -294,7 +297,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.end").hasJsonPath())
                 .andExpect(jsonPath("$.status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).getById(bookingId, 1L);
+        verify(bookingClient, times(1)).getById(bookingId, 1L);
     }
 
     @Test
@@ -302,7 +305,7 @@ class BookingControllerTest {
     void getByIdMissingRequestHeaderTest() {
         Long bookingId = 1L;
 
-        when(bookingService.getById(anyLong(), anyLong())).thenReturn(bookingDtoResponse);
+        when(bookingClient.getById(anyLong(), anyLong())).thenReturn(new ResponseEntity<>(bookingDtoResponse, HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/bookings/{bookingId}", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -310,7 +313,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(bookingService, never()).getById(anyLong(), anyLong());
+        verify(bookingClient, never()).getById(anyLong(), anyLong());
     }
 
     @Test
@@ -319,8 +322,8 @@ class BookingControllerTest {
         String state = "FUTURE";
         int from = 1, size = 4;
 
-        when(bookingService.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.OK));
 
         mvc.perform(get("/bookings?state={state}&from={from}&size={size}", state, from, size)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -334,14 +337,14 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").hasJsonPath())
                 .andExpect(jsonPath("$[0].status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).getByBookerId(1L, state, from, size);
+        verify(bookingClient, times(1)).getByBookerId(1L, state, from, size);
     }
 
     @Test
     @SneakyThrows
     void getByBookerIdDefaultParamsTest() {
-        when(bookingService.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.OK));
 
         mvc.perform(get("/bookings")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -355,7 +358,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").hasJsonPath())
                 .andExpect(jsonPath("$[0].status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).getByBookerId(1L, "ALL", 0, 10);
+        verify(bookingClient, times(1)).getByBookerId(1L, "ALL", 0, 10);
     }
 
     @Test
@@ -363,8 +366,8 @@ class BookingControllerTest {
     void getByBookerIdInvalidStartTest() {
         int from = -1;
 
-        when(bookingService.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/bookings?from={from}", from)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -373,14 +376,14 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation error"));
 
-        verify(bookingService, never()).getByBookerId(anyLong(), anyString(), anyInt(), anyInt());
+        verify(bookingClient, never()).getByBookerId(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     @SneakyThrows
     void getByBookerIdMissingRequestHeaderTest() {
-        when(bookingService.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByBookerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/bookings")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -388,7 +391,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(bookingService, never()).getByBookerId(anyLong(), anyString(), anyInt(), anyInt());
+        verify(bookingClient, never()).getByBookerId(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
@@ -397,8 +400,8 @@ class BookingControllerTest {
         String state = "FUTURE";
         int from = 1, size = 4;
 
-        when(bookingService.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.OK));
 
         mvc.perform(get("/bookings/owner?state={state}&from={from}&size={size}", state, from, size)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -412,14 +415,14 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").hasJsonPath())
                 .andExpect(jsonPath("$[0].status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).getByOwnerId(1L, state, from, size);
+        verify(bookingClient, times(1)).getByOwnerId(1L, state, from, size);
     }
 
     @Test
     @SneakyThrows
     void getByOwnerIdDefaultParamsTest() {
-        when(bookingService.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.OK));
 
         mvc.perform(get("/bookings/owner")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -433,7 +436,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").hasJsonPath())
                 .andExpect(jsonPath("$[0].status").value(bookingDtoResponse.getStatus().name()));
 
-        verify(bookingService, times(1)).getByOwnerId(1L, "ALL", 0, 10);
+        verify(bookingClient, times(1)).getByOwnerId(1L, "ALL", 0, 10);
     }
 
     @Test
@@ -441,8 +444,8 @@ class BookingControllerTest {
     void getByOwnerIdInvalidStartTest() {
         int from = -1;
 
-        when(bookingService.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/bookings/owner?from={from}", from)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -451,14 +454,14 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation error"));
 
-        verify(bookingService, never()).getByOwnerId(anyLong(), anyString(), anyInt(), anyInt());
+        verify(bookingClient, never()).getByOwnerId(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     @SneakyThrows
     void getByOwnerIdMissingRequestHeaderTest() {
-        when(bookingService.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenReturn(List.of(bookingDtoResponse));
+        when(bookingClient.getByOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ResponseEntity<>(List.of(bookingDtoResponse), HttpStatus.BAD_REQUEST));
 
         mvc.perform(get("/bookings/owner")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -466,7 +469,7 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Missing request header"));
 
-        verify(bookingService, never()).getByOwnerId(anyLong(), anyString(), anyInt(), anyInt());
+        verify(bookingClient, never()).getByOwnerId(anyLong(), anyString(), anyInt(), anyInt());
     }
 
 }
