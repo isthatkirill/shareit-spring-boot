@@ -52,4 +52,11 @@ public class ErrorHandler {
         return new ErrorMessage("Illegal argument", e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessage unexpectedErrorHandle(final Throwable e) {
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        return new ErrorMessage("Unexpected error occurred", e.getMessage());
+    }
+
 }
