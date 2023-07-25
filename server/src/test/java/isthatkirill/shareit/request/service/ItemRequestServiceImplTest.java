@@ -52,9 +52,7 @@ class ItemRequestServiceImplTest {
                 .description("req-2 user-1000")
                 .build();
 
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemRequestService.create(dtoIn, 100L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemRequestService.create(dtoIn, 100L));
 
         assertThat(e).hasMessage("Entity User not found. Id=100");
     }
@@ -83,9 +81,7 @@ class ItemRequestServiceImplTest {
     @Test
     @Order(5)
     void getAllByNonExistentUserTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemRequestService.getAll(0, 100, 100L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemRequestService.getAll(0, 100, 100L));
         assertThat(e).hasMessage("Entity User not found. Id=100");
     }
 
@@ -102,9 +98,7 @@ class ItemRequestServiceImplTest {
     @Test
     @Order(7)
     void getOwnByNonExistentUserTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemRequestService.getOwn(100L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemRequestService.getOwn(100L));
         assertThat(e).hasMessage("Entity User not found. Id=100");
     }
 
@@ -122,9 +116,7 @@ class ItemRequestServiceImplTest {
     @Test
     @Order(9)
     void getByNonExistentIdTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemRequestService.getById(100L, 4L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemRequestService.getById(100L, 4L));
 
         assertThat(e).hasMessage("Entity ItemRequest not found. Id=100");
     }
@@ -132,9 +124,7 @@ class ItemRequestServiceImplTest {
     @Test
     @Order(10)
     void getByNonExistentUserTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemRequestService.getById(2L, 100L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemRequestService.getById(2L, 100L));
 
         assertThat(e).hasMessage("Entity User not found. Id=100");
     }

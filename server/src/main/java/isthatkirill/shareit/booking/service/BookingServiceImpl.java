@@ -76,7 +76,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDtoResponse> getByBookerId(Long bookerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(bookerId);
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size);
-        List<BookingDtoResponse> bookings = new ArrayList<>();
+        List<BookingDtoResponse> bookings;
         switch (state) {
             case "ALL":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository
@@ -114,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDtoResponse> getByOwnerId(Long ownerId, String state, Integer from, Integer size) {
         userService.checkUserExistentAndGet(ownerId);
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size);
-        List<BookingDtoResponse> bookings = new ArrayList<>();
+        List<BookingDtoResponse> bookings;
         switch (state) {
             case "ALL":
                 bookings = bookingMapper.toBookingDtoResponse(bookingRepository

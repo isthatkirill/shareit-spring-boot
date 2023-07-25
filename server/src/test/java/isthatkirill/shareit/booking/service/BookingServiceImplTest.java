@@ -63,9 +63,7 @@ class BookingServiceImplTest {
                 .end(LocalDateTime.now().plusDays(2))
                 .build();
 
-        Throwable e = assertThrows(ItemNotAvailableException.class, () -> {
-            bookingService.create(bookingDtoRequest, 3L);
-        });
+        Throwable e = assertThrows(ItemNotAvailableException.class, () -> bookingService.create(bookingDtoRequest, 3L));
 
         assertThat(e).hasMessage("Item is not available. Id=1");
     }
@@ -79,9 +77,7 @@ class BookingServiceImplTest {
                 .end(LocalDateTime.now().plusDays(2))
                 .build();
 
-        Throwable e = assertThrows(BookYourOwnItemException.class, () -> {
-            bookingService.create(bookingDtoRequest, 2L);
-        });
+        Throwable e = assertThrows(BookYourOwnItemException.class, () -> bookingService.create(bookingDtoRequest, 2L));
 
         assertThat(e).hasMessage("Cannot book your own item");
     }
@@ -89,9 +85,7 @@ class BookingServiceImplTest {
     @Test
     @Order(4)
     void approveByNotOwnerTest() {
-        Throwable e = assertThrows(IncorrectOwnerException.class, () -> {
-            bookingService.approve(2L, 1L, true);
-        });
+        Throwable e = assertThrows(IncorrectOwnerException.class, () -> bookingService.approve(2L, 1L, true));
 
         assertThat(e).hasMessage("User id=2 is not owner of item id=2");
     }
@@ -99,9 +93,7 @@ class BookingServiceImplTest {
     @Test
     @Order(5)
     void approveNonExistentBookingTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            bookingService.approve(2L, 100L, true);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> bookingService.approve(2L, 100L, true));
 
         assertThat(e).hasMessage("Entity Booking not found. Id=100");
     }
@@ -128,9 +120,7 @@ class BookingServiceImplTest {
     @Test
     @Order(8)
     void cannotChangeApprovedTest() {
-        Throwable e = assertThrows(ChangeBookingStatusException.class, () -> {
-            bookingService.approve(1L, 1L, false);
-        });
+        Throwable e = assertThrows(ChangeBookingStatusException.class, () -> bookingService.approve(1L, 1L, false));
 
         assertThat(e).hasMessage("Cannot change approved or rejected status");
     }
@@ -148,9 +138,7 @@ class BookingServiceImplTest {
     @Test
     @Order(10)
     void getByIdNotBookerNotOwnerTest() {
-        Throwable e = assertThrows(IncorrectOwnerException.class, () -> {
-            bookingService.getById(1L, 2L);
-        });
+        Throwable e = assertThrows(IncorrectOwnerException.class, () -> bookingService.getById(1L, 2L));
 
         assertThat(e).hasMessage("User id=2 is not booker or owner of item id=2");
     }
@@ -184,9 +172,7 @@ class BookingServiceImplTest {
         bookings = bookingService.getByBookerId(bookerId, "FUTURE", from, size);
         assertThat(bookings).hasSize(3);
 
-        Throwable e = assertThrows(UnsupportedStatusException.class, () -> {
-            bookingService.getByBookerId(bookerId, "INVALID", 0, 10);
-        });
+        Throwable e = assertThrows(UnsupportedStatusException.class, () -> bookingService.getByBookerId(bookerId, "INVALID", 0, 10));
 
         assertThat(e).hasMessage("Unknown state: INVALID");
     }
@@ -219,9 +205,7 @@ class BookingServiceImplTest {
         bookings = bookingService.getByOwnerId(ownerId, "FUTURE", from, size);
         assertThat(bookings).hasSize(4);
 
-        Throwable e = assertThrows(UnsupportedStatusException.class, () -> {
-            bookingService.getByOwnerId(ownerId, "INVALID", 0, 10);
-        });
+        Throwable e = assertThrows(UnsupportedStatusException.class, () -> bookingService.getByOwnerId(ownerId, "INVALID", 0, 10));
 
         assertThat(e).hasMessage("Unknown state: INVALID");
     }

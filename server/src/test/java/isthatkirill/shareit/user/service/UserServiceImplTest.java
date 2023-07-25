@@ -60,9 +60,7 @@ class UserServiceImplTest {
                 .name("newTestName")
                 .build();
 
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            userService.update(userDto, 999L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> userService.update(userDto, 999L));
 
         assertThat(e).hasMessage("Entity User not found. Id=999");
     }
@@ -79,9 +77,7 @@ class UserServiceImplTest {
     @Test
     @Order(5)
     void getByInvalidId() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            userService.getById(999L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> userService.getById(999L));
 
         assertThat(e).hasMessage("Entity User not found. Id=999");
     }
@@ -126,9 +122,7 @@ class UserServiceImplTest {
                 .email("firsttestemail@yahoo.com")
                 .build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userService.create(userDto);
-        });
+        assertThrows(DataIntegrityViolationException.class, () -> userService.create(userDto));
     }
 
     @Test
@@ -138,9 +132,7 @@ class UserServiceImplTest {
                 .email("secondtestemail@yahoo.com")
                 .build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userService.update(userDtoUpdated, 2L);
-        });
+        assertThrows(DataIntegrityViolationException.class, () -> userService.update(userDtoUpdated, 2L));
     }
 
 }

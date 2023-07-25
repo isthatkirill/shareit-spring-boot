@@ -101,9 +101,7 @@ class ItemServiceImplTest {
                 .description("description_non_existent_user")
                 .build();
 
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemService.update(dtoIn, 999L, 1L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemService.update(dtoIn, 999L, 1L));
 
         assertThat(e).hasMessage("Entity User not found. Id=999");
     }
@@ -115,9 +113,7 @@ class ItemServiceImplTest {
                 .description("description_wrong_owner")
                 .build();
 
-        Throwable e = assertThrows(IncorrectOwnerException.class, () -> {
-            itemService.update(dtoIn, 2L, 1L);
-        });
+        Throwable e = assertThrows(IncorrectOwnerException.class, () -> itemService.update(dtoIn, 2L, 1L));
 
         assertThat(e).hasMessage("You are not allowed to edit this item");
     }
@@ -129,9 +125,7 @@ class ItemServiceImplTest {
                 .description("description_for_item_which_not_exists")
                 .build();
 
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemService.update(dtoIn, 1L, 100L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemService.update(dtoIn, 1L, 100L));
 
         assertThat(e).hasMessage("Entity Item not found. Id=100");
     }
@@ -173,9 +167,7 @@ class ItemServiceImplTest {
     @Test
     @Order(10)
     void getNonExistentItemByIdTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemService.getById(200L, 2L);
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemService.getById(200L, 2L));
 
         assertThat(e).hasMessage("Entity Item not found. Id=200");
     }
@@ -255,9 +247,7 @@ class ItemServiceImplTest {
     @Test
     @Order(17)
     void createCommentByNonExistentUserTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemService.createComment(2L, 5L, new CommentDtoRequest("comment"));
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemService.createComment(2L, 5L, new CommentDtoRequest("comment")));
 
         assertThat(e).hasMessage("Entity User not found. Id=5");
     }
@@ -265,9 +255,7 @@ class ItemServiceImplTest {
     @Test
     @Order(18)
     void createCommentOnNonExistentItemTest() {
-        Throwable e = assertThrows(NotFoundException.class, () -> {
-            itemService.createComment(10L, 2L, new CommentDtoRequest("comment"));
-        });
+        Throwable e = assertThrows(NotFoundException.class, () -> itemService.createComment(10L, 2L, new CommentDtoRequest("comment")));
 
         assertThat(e).hasMessage("Entity Item not found. Id=10");
     }
@@ -275,9 +263,7 @@ class ItemServiceImplTest {
     @Test
     @Order(19)
     void createCommentWithoutBookingTest() {
-        Throwable e = assertThrows(CommentingDeniedException.class, () -> {
-            itemService.createComment(2L, 4L, new CommentDtoRequest("comment"));
-        });
+        Throwable e = assertThrows(CommentingDeniedException.class, () -> itemService.createComment(2L, 4L, new CommentDtoRequest("comment")));
 
         assertThat(e).hasMessage("You didn't book this item.");
     }
